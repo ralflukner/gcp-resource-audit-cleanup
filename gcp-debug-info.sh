@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Collect Debug Information Script
-# File: debug-info.sh
+# File: gcp-debug-info.sh
 # Author: Ralf B. Lukner MD PhD
 # Date: 2025-01-27
 # Version: 1.0
