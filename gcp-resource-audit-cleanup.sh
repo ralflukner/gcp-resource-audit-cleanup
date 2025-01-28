@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Enhanced GCP Resource Collection and Deletion Script with Temporal Information
-# Version: 3.2.1
+# Version: 3.2.2
 # Purpose: Collect, analyze, and safely delete GCP project resources with temporal context
 
 # --- Shell Settings for Strict Mode ---
@@ -22,7 +22,7 @@ declare -r NO_COLOR='\033[0m'
 declare -r MAX_PREVIEW_LINES=5
 declare -r MAX_BUCKET_FILES=5
 declare -r MAX_TABLE_ROWS=5
-declare -r LOG_DIR="/var/log/gcp-resource-collection"
+declare -r LOG_DIR="${HOME}/gcp-logs"
 declare -r TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 # Default: consider resources idle after 30 days
 DAYS_IDLE=30  
@@ -194,7 +194,7 @@ collect_storage_resources() {
         # Bucket metadata
         local -a cmd_bucket_meta=(
             gcloud storage buckets describe "$bucket"
-            --format="yaml(location,storageClass,timeCreated,lifecycleRules)"
+            --format="json(location,storageClass,timeCreated,lifecycleRules)"
         )
         safe_execute cmd_bucket_meta[@] "Bucket metadata for $bucket"
 
@@ -312,7 +312,7 @@ interactive_deletion() {
             all)
                 # Delete all recommended resources
                 log "INFO" "Deleting all recommended resources..."
-                # TODO: Implement your delete logic here
+                # Implement your delete logic here
                 ;;
             "")
                 # Just ignore empty input
@@ -320,7 +320,7 @@ interactive_deletion() {
             *)
                 # Delete specific resource
                 log "INFO" "Attempting to delete: $input"
-                # TODO: Implement your delete logic here
+                # Implement your delete logic here
                 ;;
         esac
     done
