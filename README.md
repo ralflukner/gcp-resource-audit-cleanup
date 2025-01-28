@@ -133,7 +133,7 @@ chmod +x gcp-resource-audit-cleanup.sh
 ```bash
 ./gcp_resource_audit_and_cleanup.sh -r -t -d 60 my-project-id
 ```
-•	Uses both recommend-only and test mode, with an idle threshold of 60 days.
+Uses both recommend-only and test mode, with an idle threshold of 60 days.
 
 ---
 
@@ -145,6 +145,7 @@ information on how to get involved, submit issues, or open pull requests.
 ## License
 This project is licensed under the [MIT License](LICENSE).
 You are free to use, modify, and distribute this software under the terms of that license.
+---
 
 ## Disclaimer
 - **No warranties**: This script is provided *as is*, without warranty of any kind.
