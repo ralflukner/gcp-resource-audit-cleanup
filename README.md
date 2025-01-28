@@ -1,155 +1,227 @@
-# gcp-resource-audit-cleanup
+# GCP Resource Audit and Cleanup
 
-A comprehensive **Bash script** to audit, analyze, and (optionally) **clean up** Google Cloud Platform (GCP) resources that appear **idle** or **unused**. The script supports:
+The GCP Resource Audit and Cleanup tool is a sophisticated Bash script designed to help system administrators and cloud engineers maintain their Google Cloud Platform environments. This tool systematically analyzes resource usage patterns, identifies optimization opportunities, and safely manages resource lifecycle, all while maintaining strict safety controls and comprehensive audit trails.
 
-- **Interactive** and **non-interactive** modes  
-- A **safe “recommend-only”** mode (lists changes but does not actually perform them)  
-- **Test mode** (dry run that validates environment and simulates commands)  
-- Detailed **logging**, **error handling**, and **API rate limiting**  
-- Resource usage analysis (e.g., idle Compute Engine instances, unused buckets)  
-- Service usage listing (displays enabled GCP APIs/services, with placeholders for deeper usage analysis)
+## Key Features
 
-> **Version:** 3.2  
-> **License:** [MIT License](LICENSE)
+The script provides a robust set of capabilities for GCP resource management:
 
----
+Resource Analysis:
+- Compute Engine instance utilization patterns and optimization opportunities
+- Storage bucket access patterns and lifecycle management
+- Unattached persistent disk identification
+- Snapshot retention analysis and cleanup recommendations
+- Network resource utilization assessment
 
-## Requirements & Assumptions
+Safety and Control:
+- Interactive and non-interactive operation modes
+- Comprehensive dependency checking before any resource modification
+- Rate-limited API calls to prevent quota exhaustion
+- Detailed logging and audit trails
+- Resource locking to prevent concurrent modifications
 
-1. **Bash 4.0+**  
-   - The script uses associative arrays and other features available in Bash 4 or higher.  
-   - On macOS, the default Bash may be 3.2; consider installing Bash 4 or 5 (e.g., via Homebrew).
+Performance Optimization:
+- Efficient batch processing of resource inventories
+- Intelligent retry mechanisms with exponential backoff
+- Parallel processing capabilities where appropriate
+- Memory-efficient handling of large resource sets
 
-2. **Google Cloud SDK**  
-   - You must have the [Google Cloud SDK (`gcloud`)](https://cloud.google.com/sdk/docs/install) installed and authenticated.  
-   - We recommend **version 350.0.0 or newer** for full compatibility.
+## Version and Compatibility
 
-3. **IAM Permissions**  
-   - To **list** resources, you need viewer roles (e.g., `compute.viewer`, `storage.viewer`).  
-   - To **delete** resources or **disable** services, you need corresponding admin roles (e.g., `compute.admin`, `storage.admin`, `serviceusage.serviceUsageAdmin`).  
-   - Being a **Project Owner** generally covers all required privileges.
+Current Version: 3.2.4
+Release Date: January 2025
 
-4. **Operating System**  
-   - Tested on Linux distributions (Ubuntu, Debian, CentOS) and macOS (with updated Bash).  
-   - On Windows, consider using **WSL** (Windows Subsystem for Linux) or **Git Bash** with Bash 4+.
+The script has been thoroughly tested in the following environments:
+- Linux: Ubuntu 22.04+, Debian 11+, Red Hat Enterprise Linux 8+
+- macOS: Ventura (13.0) and later with Bash 4.0+ installed
+- Windows: Windows Subsystem for Linux 2 (WSL2) with Ubuntu 22.04
 
-5. **Standard Utilities**  
-   - The script assumes typical POSIX utilities (`find`, `gzip`, etc.) are in your system `$PATH`.
+## Prerequisites
 
----
+Before using this tool, ensure your environment meets these requirements:
 
-# gcp-resource-audit-cleanup
+1. Bash Environment:
+   - Bash version 4.0 or higher is required
+   - For macOS users: Install updated Bash via Homebrew:
+     ```bash
+     brew install bash
+     ```
 
-A comprehensive **Bash script** to audit, analyze, and (optionally) **clean up** Google Cloud Platform (GCP) resources that appear **idle** or **unused**. The script supports:
+2. Google Cloud SDK:
+   - Minimum version: 350.0.0
+   - Installation guide: https://cloud.google.com/sdk/docs/install
+   - Must be properly authenticated with sufficient permissions
 
-- **Interactive** and **non-interactive** modes  
-- A **safe “recommend-only”** mode (lists changes but does not actually perform them)  
-- **Test mode** (dry run that validates environment and simulates commands)  
-- Detailed **logging**, **error handling**, and **API rate limiting**  
-- Resource usage analysis (e.g., idle Compute Engine instances, unused buckets)  
-- Service usage listing (displays enabled GCP APIs/services, with placeholders for deeper usage analysis)
+3. Required System Utilities:
+   - jq (JSON processor)
+   - gcloud (Google Cloud SDK)
+   - awk
+   - curl
+   - mktemp
 
-> **Version:** 3.2  
-> **License:** [MIT License](LICENSE)
+4. IAM Permissions:
+   For read-only analysis:
+   - roles/compute.viewer
+   - roles/storage.viewer
+   - roles/monitoring.viewer
 
----
-
-## Requirements & Assumptions
-
-1. **Bash 4.0+**  
-   - The script uses associative arrays and other features available in Bash 4 or higher.  
-   - On macOS, the default Bash may be 3.2; consider installing Bash 4 or 5 (e.g., via Homebrew).
-
-2. **Google Cloud SDK**  
-   - You must have the [Google Cloud SDK (`gcloud`)](https://cloud.google.com/sdk/docs/install) installed and authenticated.  
-   - We recommend **version 350.0.0 or newer** for full compatibility.
-
-3. **IAM Permissions**  
-   - To **list** resources, you need viewer roles (e.g., `compute.viewer`, `storage.viewer`).  
-   - To **delete** resources or **disable** services, you need corresponding admin roles (e.g., `compute.admin`, `storage.admin`, `serviceusage.serviceUsageAdmin`).  
-   - Being a **Project Owner** generally covers all required privileges.
-
-4. **Operating System**  
-   - Tested on Linux distributions (Ubuntu, Debian, CentOS) and macOS (with updated Bash).  
-   - On Windows, consider using **WSL** (Windows Subsystem for Linux) or **Git Bash** with Bash 4+.
-
-5. **Standard Utilities**  
-   - The script assumes typical POSIX utilities (`find`, `gzip`, etc.) are in your system `$PATH`.
-
----
+   For resource management:
+   - roles/compute.admin
+   - roles/storage.admin
+   - roles/monitoring.admin
 
 ## Installation
 
-1. **Clone the Repository**:
-
+1. Clone the repository:
 ```bash
-git clone https://github.com/<YOUR_USERNAME>/gcp-resource-audit-cleanup.git
+git clone https://github.com/your-username/gcp-resource-audit-cleanup.git
 cd gcp-resource-audit-cleanup
 ```
 
-2. **Make the Script Executable**:
+2. Make the script executable:
 ```bash
 chmod +x gcp-resource-audit-cleanup.sh
 ```
 
-3. **Run the Script in Test Mode**:
+3. Verify your environment:
 ```bash
 ./gcp-resource-audit-cleanup.sh --test
 ```
 
-## Usage
-```bash
-./gcp_resource_audit_and_cleanup.sh [OPTIONS] <PROJECT_ID>
-```
-# Options
+## Usage Guide
 
-| Option                     | Description                                                                                 |
-|----------------------------|---------------------------------------------------------------------------------------------|
-| `-o, --output-dir DIR`     | Output directory for logs/results (default: `../projects-data`)                            |
-| `-d, --days DAYS`          | Days threshold for considering resources idle (default: `30`)                              |
-| `-v, --verbose`            | Enable verbose (debug) logging                                                              |
-| `-i, --interactive`        | Interactive mode (prompts before deleting resources or disabling services)                 |
-| `-r, --recommend-only`     | Only *recommend* deletions or disables; does **not** actually perform them                 |
-| `-t, --test-mode`          | Test mode (skips all destructive commands, logs simulated operations, checks environment)  |
-| `-h, --help`               | Show usage/help message                                                                     |
+The script supports various operation modes and configuration options:
 
----
+Basic Usage:
+```bash
+./gcp-resource-audit-cleanup.sh --project-id PROJECT_ID [OPTIONS]
+```
 
-# Examples
+Available Options:
+```
+--project-id      GCP Project ID (required)
+--verbose         Enable detailed logging
+--interactive     Enable interactive mode for confirmations
+--output-format   Output format (text|json)
+--days-idle      Days threshold for resource idleness
+--output-dir     Directory for output files
+--test           Run in test mode without making changes
+```
 
-1. **Interactive Mode**:
-```bash
-./gcp-resource-audit-cleanup.sh --interactive my-project-id
-```
-2.	**Recommend-Only**:
-```bash
-./gcp_resource_audit_and_cleanup.sh --recommend-only my-project-id
-```
-3. **Test Mode**:
-```bash
-./gcp_resource_audit_and_cleanup.sh --test-mode my-project-id
-```
-4.	**Combining Flags**:
-```bash
-./gcp_resource_audit_and_cleanup.sh -r -t -d 60 my-project-id
-```
-Uses both recommend-only and test mode, with an idle threshold of 60 days.
+Common Usage Patterns:
 
----
+1. Safe Analysis Mode:
+```bash
+./gcp-resource-audit-cleanup.sh \
+  --project-id your-project \
+  --output-format json \
+  --verbose
+```
+
+2. Interactive Cleanup:
+```bash
+./gcp-resource-audit-cleanup.sh \
+  --project-id your-project \
+  --interactive \
+  --days-idle 45
+```
+
+3. Automated Audit:
+```bash
+./gcp-resource-audit-cleanup.sh \
+  --project-id your-project \
+  --output-dir /path/to/reports \
+  --output-format json
+```
+
+## Output and Reports
+
+The script generates several types of output:
+
+1. Resource Inventory:
+   - Comprehensive listing of all GCP resources
+   - Usage patterns and statistics
+   - Dependency mappings
+
+2. Analysis Reports:
+   - Resource utilization metrics
+   - Cost optimization opportunities
+   - Security recommendations
+
+3. Audit Logs:
+   - Detailed operation logs
+   - Error reports and warnings
+   - Action audit trails
+
+All outputs are stored in the specified output directory with timestamps and proper categorization.
+
+## Safety Features
+
+The script implements multiple safety mechanisms:
+
+1. Resource Locking:
+   - Prevents concurrent modifications
+   - Ensures atomic operations
+   - Automatic lock cleanup
+
+2. Dependency Checking:
+   - Full dependency graph analysis
+   - Cascade impact assessment
+   - Automatic abort for unsafe operations
+
+3. Rate Limiting:
+   - Token bucket algorithm
+   - Configurable rate limits
+   - Automatic backoff on API throttling
+
+## Troubleshooting
+
+Common issues and their solutions:
+
+1. Authentication Errors:
+   - Run `gcloud auth login`
+   - Verify project permissions
+   - Check credential expiration
+
+2. Rate Limiting:
+   - Adjust API_CALLS_PER_MINUTE in script
+   - Monitor quota usage
+   - Implement request batching
+
+3. Permission Issues:
+   - Verify IAM roles
+   - Check project access
+   - Review audit logs
 
 ## Contributing
-Contributions, suggestions, and feature requests are welcome! Please see [CONTRIBUTING.md] (CONTRIBUTING.md) for more
-information on how to get involved, submit issues, or open pull requests.
----
+
+We welcome contributions to improve this tool:
+
+1. Fork the repository
+2. Create a feature branch
+3. Implement improvements
+4. Add tests
+5. Submit a pull request
+
+Please review our contributing guidelines for more details.
 
 ## License
-This project is licensed under the [MIT License](LICENSE).
-You are free to use, modify, and distribute this software under the terms of that license.
----
 
-## Disclaimer
-- **No warranties**: This script is provided *as is*, without warranty of any kind.
-- **Production caution**: Always verify resource dependencies and usage in test or recommend-only modes before deleting/
-disabling anything in production.
-- **Not an official Google product**: This is a community-driven script, not officially supported by Google.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
+## Security Considerations
+
+While this script implements numerous safety checks, users should:
+- Always test in non-production environments first
+- Maintain proper backup procedures
+- Review all recommended actions before execution
+- Monitor audit logs for unexpected behavior
+
+## Support and Contact
+
+For issues, feature requests, or contributions:
+- Open an issue in the GitHub repository
+- Submit pull requests for improvements
+- Contact the maintainers directly
+
+Remember to include relevant logs and environment details when reporting issues.
