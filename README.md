@@ -1,227 +1,145 @@
-# GCP Resource Audit and Cleanup
+# GCP Resource Management System
 
-The GCP Resource Audit and Cleanup tool is a sophisticated Bash script designed to help system administrators and cloud engineers maintain their Google Cloud Platform environments. This tool systematically analyzes resource usage patterns, identifies optimization opportunities, and safely manages resource lifecycle, all while maintaining strict safety controls and comprehensive audit trails.
+## Overview
+The GCP Resource Management System is a collection of shell scripts designed to streamline the management, analysis, and optimization of Google Cloud Platform (GCP) resources. The system includes utilities for logging, error handling, resource analysis, pattern detection, debugging, and testing. It is modular, extensible, and aimed at developers and system administrators managing complex GCP environments.
 
-## Key Features
+## Features
+### Core Modules
+1. **gcp-utils.sh**
+   - Provides foundational utilities for logging, error handling, resource state management, and locking mechanisms.
+   - Includes retry mechanisms, exponential backoff, and comprehensive error recovery.
 
-The script provides a robust set of capabilities for GCP resource management:
+2. **gcp-error-handler.sh**
+   - Manages error reporting and recovery across all components.
+   - Includes stack trace generation and integration with centralized monitoring.
 
-Resource Analysis:
-- Compute Engine instance utilization patterns and optimization opportunities
-- Storage bucket access patterns and lifecycle management
-- Unattached persistent disk identification
-- Snapshot retention analysis and cleanup recommendations
-- Network resource utilization assessment
+3. **gcp-resource-analysis.sh**
+   - Analyzes GCP resource usage to identify underutilized resources, anomalies, and optimization opportunities.
+   - Generates actionable reports to help reduce costs and improve performance.
 
-Safety and Control:
-- Interactive and non-interactive operation modes
-- Comprehensive dependency checking before any resource modification
-- Rate-limited API calls to prevent quota exhaustion
-- Detailed logging and audit trails
-- Resource locking to prevent concurrent modifications
+4. **gcp-pattern-detection.sh**
+   - Detects patterns and anomalies in resource usage.
+   - Supports predefined and user-defined patterns for greater flexibility.
 
-Performance Optimization:
-- Efficient batch processing of resource inventories
-- Intelligent retry mechanisms with exponential backoff
-- Parallel processing capabilities where appropriate
-- Memory-efficient handling of large resource sets
+5. **gcp-debug-info.sh**
+   - Collects and compiles diagnostic data for debugging.
+   - Supports user-defined exclusions to protect sensitive information.
 
-## Version and Compatibility
+6. **gcp-test-suite.sh**
+   - Validates the functionality and stability of the system.
+   - Includes unit tests, integration tests, and performance benchmarks.
 
-Current Version: 3.2.4
-Release Date: January 2025
+## Current Status
+This project is currently in **pre-stable development**, with no official stable version released yet. The immediate goal is to finalize version **3.2.6**. The focus is on stabilizing core functionality, improving modularity, and enhancing error handling and testing.
 
-The script has been thoroughly tested in the following environments:
-- Linux: Ubuntu 22.04+, Debian 11+, Red Hat Enterprise Linux 8+
-- macOS: Ventura (13.0) and later with Bash 4.0+ installed
-- Windows: Windows Subsystem for Linux 2 (WSL2) with Ubuntu 22.04
+### Seeking Contributors
+We are actively seeking contributors to help:
+- Stabilize version 3.2.6.
+- Refine existing modules.
+- Expand test coverage.
+- Optimize performance and logging.
 
-## Prerequisites
+## System Requirements
+- **Google Cloud SDK** (`gcloud`)
+- `jq` (JSON processor)
+- `awk` (text processing)
+- `bc` (arithmetic processing)
+- `curl` (HTTP requests)
+- `mktemp` (secure temporary file creation)
 
-Before using this tool, ensure your environment meets these requirements:
-
-1. Bash Environment:
-   - Bash version 4.0 or higher is required
-   - For macOS users: Install updated Bash via Homebrew:
-     ```bash
-     brew install bash
-     ```
-
-2. Google Cloud SDK:
-   - Minimum version: 350.0.0
-   - Installation guide: https://cloud.google.com/sdk/docs/install
-   - Must be properly authenticated with sufficient permissions
-
-3. Required System Utilities:
-   - jq (JSON processor)
-   - gcloud (Google Cloud SDK)
-   - awk
-   - curl
-   - mktemp
-
-4. IAM Permissions:
-   For read-only analysis:
-   - roles/compute.viewer
-   - roles/storage.viewer
-   - roles/monitoring.viewer
-
-   For resource management:
-   - roles/compute.admin
-   - roles/storage.admin
-   - roles/monitoring.admin
+### Supported Platforms
+- Linux
+- macOS
+- Other Unix-like systems
 
 ## Installation
-
 1. Clone the repository:
-```bash
-git clone https://github.com/your-username/gcp-resource-audit-cleanup.git
-cd gcp-resource-audit-cleanup
-```
+   ```bash
+   git clone https://github.com/your-repo/gcp-resource-management.git
+   cd gcp-resource-management
+   ```
 
-2. Make the script executable:
-```bash
-chmod +x gcp-resource-audit-cleanup.sh
-```
+2. Ensure all required commands are installed:
+   ```bash
+   sudo apt-get install gcloud jq awk bc curl mktemp
+   ```
 
-3. Verify your environment:
-```bash
-./gcp-resource-audit-cleanup.sh --test
-```
+3. Initialize the environment:
+   ```bash
+   ./gcp-utils.sh --initialize
+   ```
 
-## Usage Guide
+## Usage
+### Example Workflow
+1. **Analyze Resources:**
+   ```bash
+   ./gcp-resource-analysis.sh --project my-gcp-project
+   ```
 
-The script supports various operation modes and configuration options:
+2. **Detect Patterns:**
+   ```bash
+   ./gcp-pattern-detection.sh --input resource-data.json
+   ```
 
-Basic Usage:
-```bash
-./gcp-resource-audit-cleanup.sh --project-id PROJECT_ID [OPTIONS]
-```
+3. **Debug Issues:**
+   ```bash
+   ./gcp-debug-info.sh --exclude-auth
+   ```
 
-Available Options:
-```
---project-id      GCP Project ID (required)
---verbose         Enable detailed logging
---interactive     Enable interactive mode for confirmations
---output-format   Output format (text|json)
---days-idle      Days threshold for resource idleness
---output-dir     Directory for output files
---test           Run in test mode without making changes
-```
+4. **Run Tests:**
+   ```bash
+   ./gcp-test-suite.sh --run-all
+   ```
 
-Common Usage Patterns:
+### Key Command-Line Options
+- `--initialize`: Sets up the required directories and initializes the system.
+- `--project`: Specifies the GCP project for analysis or testing.
+- `--exclude-auth`: Excludes sensitive authentication data from outputs.
 
-1. Safe Analysis Mode:
-```bash
-./gcp-resource-audit-cleanup.sh \
-  --project-id your-project \
-  --output-format json \
-  --verbose
-```
+## Roadmap
+### Version 3.2.6 Milestones
+- **Stabilize gcp-utils.sh**
+   - Finalize logging, error handling, and locking mechanisms.
+- **Enhance Test Suite**
+   - Add edge case tests for different project categories.
+   - Integrate tests into CI/CD pipelines.
+- **Improve Documentation**
+   - Provide detailed examples for each module.
+   - Add troubleshooting guides for common issues.
 
-2. Interactive Cleanup:
-```bash
-./gcp-resource-audit-cleanup.sh \
-  --project-id your-project \
-  --interactive \
-  --days-idle 45
-```
-
-3. Automated Audit:
-```bash
-./gcp-resource-audit-cleanup.sh \
-  --project-id your-project \
-  --output-dir /path/to/reports \
-  --output-format json
-```
-
-## Output and Reports
-
-The script generates several types of output:
-
-1. Resource Inventory:
-   - Comprehensive listing of all GCP resources
-   - Usage patterns and statistics
-   - Dependency mappings
-
-2. Analysis Reports:
-   - Resource utilization metrics
-   - Cost optimization opportunities
-   - Security recommendations
-
-3. Audit Logs:
-   - Detailed operation logs
-   - Error reports and warnings
-   - Action audit trails
-
-All outputs are stored in the specified output directory with timestamps and proper categorization.
-
-## Safety Features
-
-The script implements multiple safety mechanisms:
-
-1. Resource Locking:
-   - Prevents concurrent modifications
-   - Ensures atomic operations
-   - Automatic lock cleanup
-
-2. Dependency Checking:
-   - Full dependency graph analysis
-   - Cascade impact assessment
-   - Automatic abort for unsafe operations
-
-3. Rate Limiting:
-   - Token bucket algorithm
-   - Configurable rate limits
-   - Automatic backoff on API throttling
-
-## Troubleshooting
-
-Common issues and their solutions:
-
-1. Authentication Errors:
-   - Run `gcloud auth login`
-   - Verify project permissions
-   - Check credential expiration
-
-2. Rate Limiting:
-   - Adjust API_CALLS_PER_MINUTE in script
-   - Monitor quota usage
-   - Implement request batching
-
-3. Permission Issues:
-   - Verify IAM roles
-   - Check project access
-   - Review audit logs
+### Future Enhancements
+- Support for multi-cloud environments.
+- Advanced pattern detection with machine learning.
+- Integration with external monitoring tools like Prometheus and Grafana.
 
 ## Contributing
+1. Fork the repository and create a new branch for your feature or fix.
+2. Write clear and concise commit messages.
+3. Submit a pull request with a detailed description of your changes.
+4. Ensure your code passes all tests by running the test suite locally:
+   ```bash
+   ./gcp-test-suite.sh --run-all
+   ```
 
-We welcome contributions to improve this tool:
+## Troubleshooting
+### Common Issues
+- **Missing Dependencies:** Ensure all required commands are installed.
+- **Permission Denied Errors:** Verify that the script has access to the required directories.
+- **Timeouts:** Check resource locks and adjust timeout values in the configuration.
 
-1. Fork the repository
-2. Create a feature branch
-3. Implement improvements
-4. Add tests
-5. Submit a pull request
-
-Please review our contributing guidelines for more details.
+### Debugging
+Run the debug module to collect diagnostic information:
+```bash
+./gcp-debug-info.sh --output debug-report.zip
+```
 
 ## License
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Acknowledgments
+- Contributors who provided feedback and testing.
+- Open-source projects that inspired the development of this system.
 
-## Security Considerations
+---
 
-While this script implements numerous safety checks, users should:
-- Always test in non-production environments first
-- Maintain proper backup procedures
-- Review all recommended actions before execution
-- Monitor audit logs for unexpected behavior
-
-## Support and Contact
-
-For issues, feature requests, or contributions:
-- Open an issue in the GitHub repository
-- Submit pull requests for improvements
-- Contact the maintainers directly
-
-Remember to include relevant logs and environment details when reporting issues.
+Thank you for your interest in the GCP Resource Management System! Together, we can build a robust and scalable tool for managing GCP environments.
