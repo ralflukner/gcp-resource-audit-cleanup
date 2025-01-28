@@ -1,0 +1,50 @@
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+snippet-menu-safety-implementation.sh
+make-file-bundle-sh-md.sh
+compare-text-files.sh
+
+# Editor Files
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Project Specific
+change-log-20*.md
+**/temp/
+**/logs/
+*.log
+compare-text-files.sh
+
+# Build and Dependencies
+node_modules/
+dist/
+build/
+*.pyc
+__pycache__/
+*.class
+target/
+
+# GCP Configuration
+.gcp-resource-mgmt/
+gcp-mgmt-script-legacy-scripts/
+
+# Test Files
+*.test.sh
+test-results/
+coverage/
+
+# Environment Files
+.env
+.env.local
+.env.*.local
