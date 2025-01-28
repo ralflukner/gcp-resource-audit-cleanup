@@ -9,6 +9,7 @@ Thumbs.db
 snippet-menu-safety-implementation.sh
 make-file-bundle-sh-md.sh
 compare-text-files.sh
+project-prompt-*.md
 
 # Editor Files
 *.swp
