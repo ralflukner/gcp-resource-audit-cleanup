@@ -106,8 +106,9 @@ handle_error() {
     fi
     
     # Generate unique error identifier
-    local error_id="ERR-$(date +%Y%m%d-%H%M%S)-${error_code}"
-    
+    local error_id
+    error_id="ERR-$(date +%Y%m%d-%H%M%S)-${error_code}"
+
     # Format error message from template
     local error_message
     if [[ -n "${ERROR_TEMPLATES[${error_type}]}" ]]; then
@@ -156,7 +157,7 @@ log_error() {
         echo "${message}"
         echo
         echo "System State:"
-        echo "$(get_system_state)"
+        get_system_state
         echo
         echo "Stack Trace:"
         print_stack_trace
