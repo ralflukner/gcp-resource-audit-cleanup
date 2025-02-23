@@ -7,7 +7,7 @@
 source "./gcp-utils.sh"
 
 # --- Test Suite Configuration ---
-readonly TEST_VERSION="1.0.0"
+readonly TEST_VERSION="3.2.7"
 TEST_OUTPUT_DIR="./test_output"
 readonly TEST_DATA_DIR="${SCRIPT_DIR}/test_data"
 
