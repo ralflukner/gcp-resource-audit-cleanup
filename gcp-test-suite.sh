@@ -4,11 +4,11 @@
 # Author: Ralf B Lukner MD PhD
 
 # Import core utilities
-source "${SCRIPT_DIR}/gcp-utils.sh"
+source "./gcp-utils.sh"
 
 # --- Test Suite Configuration ---
 readonly TEST_VERSION="1.0.0"
-readonly TEST_OUTPUT_DIR="${TEMP_DIR}/test_output"
+TEST_OUTPUT_DIR="./test_output"
 readonly TEST_DATA_DIR="${SCRIPT_DIR}/test_data"
 
 # --- Mock Data Generation ---
