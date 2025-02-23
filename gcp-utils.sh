@@ -3,6 +3,32 @@
 # GCP Resource Management Utilities
 # Version: 3.2.6
 # Author: Ralf B Lukner MD PhD
+# Overview
+# This script, gcp-utils.sh, provides core utility functions for managing Google Cloud Platform (GCP) resources. It is designed to enhance the reliability and maintainability of GCP resource management tasks by offering essential functionalities such as logging, command verification, resource locking, temporary file cleanup, and retry mechanisms.
+
+# Purpose
+# The purpose of this script is to serve as a foundation for other GCP management scripts. By encapsulating common utility functions, it promotes code reuse and simplifies the development of GCP resource management tools.
+
+# Key Features
+# Logging Setup and Utilities: Initializes logging for the script, ensuring that all operations are recorded with timestamps and log levels (INFO, WARN, ERROR).
+
+# Command Verification: Ensures that all required system commands (e.g., gcloud, jq, curl) are available before proceeding, preventing runtime errors due to missing dependencies.
+
+# Resource Locking and State Management: Implements mechanisms to acquire exclusive locks for resources, preventing concurrent access and ensuring data consistency.
+
+# Temporary File Cleanup and Retry Mechanisms: Provides functions to clean up old temporary files and directories, and to retry failed commands with exponential backoff, enhancing script robustness.
+#
+# Usage
+# To use this script, ensure it is sourced or executed in your environment. The script is designed to be modular, allowing other scripts to depend on its utility functions.
+#
+# Example Usage
+# Source the script
+# source gcp-utils.sh
+#
+# Version History
+# Version 3.2.6: Added detailed comments, improved logging, and enhanced error handling.
+# Version 3.2.5: Introduced resource locking and retry mechanisms.
+# Version 3.2.4: Initial release with core logging and command verification.
 #
 # Core utility functions for GCP resource management system providing:
 # - Enhanced error handling with stack traces and recovery
