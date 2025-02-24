@@ -45,7 +45,7 @@ run_tests() {
         log "DEBUG" "Initiating test procedure: ${test_function}"
 
         # Execute test with timeout protection
-        if timeout 300 ${test_function}; then
+        if timeout 300 "${test_function}"; then
             test_results+=("✓ ${test_function}")
             log "INFO" "Test passed: ${test_function}"
         else
@@ -68,7 +68,8 @@ run_tests() {
 # Similar to dose-response testing in clinical trials
 test_backoff_implementation() {
     local test_attempts=3
-    local start_time=$(get_current_timestamp)
+    local start_time
+    start_time=$(get_current_timestamp)
 
     log "INFO" "Testing backoff mechanism with ${test_attempts} attempts"
 
@@ -84,7 +85,8 @@ test_backoff_implementation() {
     done
 
     # Verify minimum wait time compliance
-    local end_time=$(get_current_timestamp)
+    local end_time
+    end_time=$(get_current_timestamp)
     local elapsed=$((end_time - start_time))
 
     if [[ ${elapsed} -lt 3 ]]; then
@@ -195,6 +197,9 @@ EOF
         fi
         return 1
     }
+
+    # Export the gcloud function to make it accessible to build_dependency_graph
+    export -f gcloud
 
     # Generate dependency graph
     if ! build_dependency_graph "instances" "${test_instance}"; then

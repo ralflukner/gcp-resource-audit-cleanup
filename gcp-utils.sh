@@ -25,9 +25,9 @@ fi
 # --- Global Constants and Configuration ---
 
 # Script information
-readonly SCRIPT_VERSION="3.2.7"
-readonly SCRIPT_NAME="${0##*/}"
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_VERSION="3.2.7"
+SCRIPT_NAME="${0##*/}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # System directories - created with proper permissions
 readonly CONFIG_DIR="${HOME}/.gcp-resource-mgmt"
