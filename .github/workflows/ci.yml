@@ -27,8 +27,15 @@ jobs:
       - name: Set up dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y jq bc curl mktemp
+          sudo apt-get install -y jq bc curl
         continue-on-error: false
+
+      - name: Verify mktemp availability
+        run: |
+          if ! command -v mktemp &> /dev/null; then
+            echo "Error: mktemp is not available in the environment."
+            exit 1
+          fi
 
       - name: Make test suite executable
         run: chmod +x ./gcp-test-suite.sh
