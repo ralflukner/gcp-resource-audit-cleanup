@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/homebrew/bin/bash
 #
 # GCP Resource Pattern Detection System
 # File: gcp-pattern-detection.sh

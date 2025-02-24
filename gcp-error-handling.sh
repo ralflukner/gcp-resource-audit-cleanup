@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/homebrew/bin/bash
 #
 # GCP Resource Management Error Handler
 # File: gcp-error-handler.sh

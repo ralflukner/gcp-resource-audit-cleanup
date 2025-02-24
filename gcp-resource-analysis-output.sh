@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/homebrew/bin/bash
 
 # Format resource utilization report with ASCII charts and tables
 format_resource_report() {

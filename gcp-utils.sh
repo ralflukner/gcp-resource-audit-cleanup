@@ -1,52 +1,32 @@
-#!/bin/bash
+#!/opt/homebrew/bin/bash
 #
 # GCP Resource Management Utilities
-# Version: 3.2.6
+# Version: 3.2.7
 # Author: Ralf B Lukner MD PhD
-# Overview
-# This script, gcp-utils.sh, provides core utility functions for managing Google Cloud Platform (GCP) resources. It is designed to enhance the reliability and maintainability of GCP resource management tasks by offering essential functionalities such as logging, command verification, resource locking, temporary file cleanup, and retry mechanisms.
+# Overview: This script provides core utility functions for managing Google Cloud Platform (GCP) resources.
+# Now updated with proper variable initialization and error checking.
 
-# Purpose
-# The purpose of this script is to serve as a foundation for other GCP management scripts. By encapsulating common utility functions, it promotes code reuse and simplifies the development of GCP resource management tools.
+# Enable bash strict mode for better error detection
+set -o nounset  # Error on undefined variables
+set -o errexit  # Exit on error
+set -o pipefail # Exit on pipe failure
 
-# Key Features
-# Logging Setup and Utilities: Initializes logging for the script, ensuring that all operations are recorded with timestamps and log levels (INFO, WARN, ERROR).
+# --- Early Variables for Error Handling ---
+# These must be defined before any other operations
+if [[ -z "${TMPDIR:-}" ]]; then
+    TMPDIR="/tmp"
+fi
 
-# Command Verification: Ensures that all required system commands (e.g., gcloud, jq, curl) are available before proceeding, preventing runtime errors due to missing dependencies.
-
-# Resource Locking and State Management: Implements mechanisms to acquire exclusive locks for resources, preventing concurrent access and ensuring data consistency.
-
-# Temporary File Cleanup and Retry Mechanisms: Provides functions to clean up old temporary files and directories, and to retry failed commands with exponential backoff, enhancing script robustness.
-#
-# Usage
-# To use this script, ensure it is sourced or executed in your environment. The script is designed to be modular, allowing other scripts to depend on its utility functions.
-#
-# Example Usage
-# Source the script
-# source gcp-utils.sh
-#
-# Version History
-# Version 3.2.6: Added detailed comments, improved logging, and enhanced error handling.
-# Version 3.2.5: Introduced resource locking and retry mechanisms.
-# Version 3.2.4: Initial release with core logging and command verification.
-#
-# Core utility functions for GCP resource management system providing:
-# - Enhanced error handling with stack traces and recovery
-# - Resource validation and state management
-# - Secure locking mechanisms with deadlock prevention
-# - Quota management and prediction
-# - Cross-component communication
-# - Testing infrastructure support
-#
-# This module serves as the foundation for the entire GCP resource management
-# system. All other components depend on the functionality provided here, so
-# we maintain strict backward compatibility and comprehensive error handling.
+if [[ -z "${HOME:-}" ]]; then
+    echo "ERROR: HOME environment variable is not set" >&2
+    exit 1
+fi
 
 # --- Global Constants and Configuration ---
 
 # Script information
-readonly SCRIPT_VERSION="3.2.6"
-readonly SCRIPT_NAME=$(basename "$0")
+readonly SCRIPT_VERSION="3.2.7"
+readonly SCRIPT_NAME="${0##*/}"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # System directories - created with proper permissions
@@ -57,7 +37,8 @@ readonly LOCK_DIR="${CONFIG_DIR}/locks"
 readonly STATE_DIR="${CONFIG_DIR}/state"
 
 # Logging levels with proper ordering for filtering
-declare -A LOG_LEVELS=(
+declare -A LOG_LEVELS
+LOG_LEVELS=(
     ["ERROR"]=0
     ["WARN"]=1
     ["INFO"]=2
@@ -120,18 +101,17 @@ initialize_environment() {
 
 setup_logging() {
     # Create timestamped log file
-    local timestamp=$(date +%Y%m%d_%H%M%S)
-    local log_file="${LOG_DIR}/gcp_utils_${timestamp}.log"
+    local timestamp
+    timestamp=$(date -u +"%Y%m%d_%H%M%S")
+    CURRENT_LOG_FILE="${LOG_DIR}/gcp_utils_${timestamp}.log"
+    export CURRENT_LOG_FILE
     
     # Create log file with proper permissions
-    touch "${log_file}" || {
-        echo "ERROR: Failed to create log file: ${log_file}" >&2
+    touch "${CURRENT_LOG_FILE}" || {
+        echo "ERROR: Failed to create log file: ${CURRENT_LOG_FILE}" >&2
         return ${E_GENERAL}
     }
-    chmod 0640 "${log_file}"
-    
-    # Export for use by logging functions
-    export CURRENT_LOG_FILE="${log_file}"
+    chmod 0640 "${CURRENT_LOG_FILE}"
     
     return ${E_SUCCESS}
 }
@@ -164,7 +144,7 @@ verify_commands() {
 # --- Enhanced Error Handling ---
 
 handle_error() {
-    local message="$1"
+    local message="${1:-Unknown error}"
     local error_code="${2:-${E_GENERAL}}"
     local context="${3:-}"
     
@@ -202,8 +182,8 @@ generate_stack_trace() {
 }
 
 recover_from_error() {
-    local error_code="$1"
-    local context="$2"
+    local error_code="${1:-${E_GENERAL}}"
+    local context="${2:-}"
     
     log "INFO" "Attempting error recovery (code: ${error_code})"
     
@@ -219,7 +199,48 @@ recover_from_error() {
     return ${E_SUCCESS}
 }
 
-# --- Resource State Management ---
+# --- Logging and Output ---
+
+log() {
+    local level="${1:-INFO}"
+    shift
+    local message="${*:-No message provided}"
+    
+    # Validate log level
+    if [[ -z "${LOG_LEVELS[$level]:-}" ]]; then
+        level="ERROR"
+        message="Invalid log level specified for message: $*"
+    fi
+    
+    # Format timestamp
+    local timestamp
+    timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    
+    # Write to log file if it exists
+    if [[ -n "${CURRENT_LOG_FILE:-}" ]] && [[ -w "${CURRENT_LOG_FILE}" ]]; then
+        printf "[%s] [%s] %s\n" "${timestamp}" "${level}" "${message}" \
+            >> "${CURRENT_LOG_FILE}"
+    fi
+    
+    # Write to console with proper formatting
+    case "${level}" in
+        "ERROR")
+            printf "${RED}[%s] %s${NC}\n" "${level}" "${message}" >&2
+            ;;
+        "WARN")
+            printf "${YELLOW}[%s] %s${NC}\n" "${level}" "${message}" >&2
+            ;;
+        "INFO")
+            printf "${GREEN}[%s] %s${NC}\n" "${level}" "${message}"
+            ;;
+        "DEBUG")
+            [[ -n "${DEBUG:-}" ]] && \
+                printf "${BLUE}[%s] %s${NC}\n" "${level}" "${message}"
+            ;;
+    esac
+}
+
+# --- State Management ---
 
 initialize_state_tracking() {
     local state_file="${STATE_DIR}/current_state.json"
@@ -240,11 +261,19 @@ EOF
     return ${E_SUCCESS}
 }
 
+# --- Resource State Management ---
+
 update_resource_state() {
-    local resource_id="$1"
-    local state="$2"
+    local resource_id="${1:-}"
+    local state="${2:-}"
     local state_file="${STATE_DIR}/current_state.json"
     
+    # Validate inputs
+    if [[ -z "${resource_id}" ]] || [[ -z "${state}" ]]; then
+        handle_error "Invalid resource state update parameters" ${E_INVALID_INPUT}
+        return ${E_INVALID_INPUT}
+    fi
+
     # Update state atomically
     jq --arg id "${resource_id}" \
        --arg state "${state}" \
@@ -254,110 +283,11 @@ update_resource_state() {
            "timestamp": $time
        }' "${state_file}" > "${state_file}.tmp" && \
     mv "${state_file}.tmp" "${state_file}"
-    
+
     return ${E_SUCCESS}
 }
 
-get_resource_state() {
-    local resource_id="$1"
-    local state_file="${STATE_DIR}/current_state.json"
-    
-    jq -r --arg id "${resource_id}" \
-        '.resources[$id].state // "unknown"' \
-        "${state_file}"
-}
-
-# --- Enhanced Resource Locking ---
-
-acquire_resource_lock() {
-    local resource_id="$1"
-    local timeout="${2:-30}"  # Default 30 second timeout
-    local lock_file="${LOCK_DIR}/${resource_id}.lock"
-    local start_time=$(date +%s)
-    
-    while true; do
-        # Try to create lock file atomically
-        if mkdir "${lock_file}" 2>/dev/null; then
-            # Record lock ownership
-            echo "$$" > "${lock_file}/pid"
-            echo "${SCRIPT_NAME}" > "${lock_file}/owner"
-            date -u +"%Y-%m-%dT%H:%M:%SZ" > "${lock_file}/timestamp"
-            
-            # Update state tracking
-            update_resource_state "${resource_id}" "locked"
-            
-            log "DEBUG" "Lock acquired for ${resource_id}"
-            return ${E_SUCCESS}
-        fi
-        
-        # Check timeout
-        if (( $(date +%s) - start_time >= timeout )); then
-            log "ERROR" "Timeout waiting for lock: ${resource_id}"
-            return ${E_TIMEOUT}
-        fi
-        
-        # Check for stale lock
-        if [[ -f "${lock_file}/pid" ]]; then
-            local lock_pid
-            lock_pid=$(<"${lock_file}/pid")
-            if ! kill -0 "${lock_pid}" 2>/dev/null; then
-                log "WARN" "Removing stale lock from PID ${lock_pid}"
-                rm -rf "${lock_file}"
-                continue
-            fi
-        fi
-        
-        sleep 1
-    done
-}
-
-release_resource_lock() {
-    local resource_id="$1"
-    local lock_file="${LOCK_DIR}/${resource_id}.lock"
-    
-    # Verify we own the lock
-    if [[ -f "${lock_file}/pid" ]]; then
-        local lock_pid
-        lock_pid=$(<"${lock_file}/pid")
-        if [[ "${lock_pid}" != "$$" ]]; then
-            log "ERROR" "Cannot release lock owned by PID ${lock_pid}"
-            return ${E_LOCK_FAILED}
-        fi
-    fi
-    
-    # Remove lock and update state
-    if rm -rf "${lock_file}"; then
-        update_resource_state "${resource_id}" "unlocked"
-        log "DEBUG" "Lock released for ${resource_id}"
-        return ${E_SUCCESS}
-    fi
-    
-    return ${E_LOCK_FAILED}
-}
-
-release_all_locks() {
-    local count=0
-    
-    # Find all locks owned by this process
-    for lock_file in "${LOCK_DIR}"/*.lock; do
-        [[ -f "${lock_file}/pid" ]] || continue
-        
-        local lock_pid
-        lock_pid=$(<"${lock_file}/pid")
-        if [[ "${lock_pid}" == "$$" ]]; then
-            local resource_id
-            resource_id=$(basename "${lock_file}" .lock)
-            if release_resource_lock "${resource_id}"; then
-                ((count++))
-            fi
-        fi
-    done
-    
-    log "DEBUG" "Released ${count} locks"
-    return ${E_SUCCESS}
-}
-
-# --- Cleanup and Resource Management ---
+# --- Cleanup ---
 
 cleanup_environment() {
     local exit_code=$?
@@ -375,107 +305,6 @@ cleanup_environment() {
     
     log "INFO" "Cleanup completed with exit code ${exit_code}"
     return ${exit_code}
-}
-
-cleanup_temp_resources() {
-    # Clean up temporary files
-    find "${TEMP_DIR}" -type f -mmin +60 -delete 2>/dev/null
-    
-    # Clean up empty directories
-    find "${TEMP_DIR}" -type d -empty -delete 2>/dev/null
-    
-    return ${E_SUCCESS}
-}
-
-update_cleanup_state() {
-    local state_file="${STATE_DIR}/current_state.json"
-    
-    # Record cleanup in state file
-    jq --arg time "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
-       '.cleanup_timestamp = $time' \
-       "${state_file}" > "${state_file}.tmp" && \
-    mv "${state_file}.tmp" "${state_file}"
-    
-    return ${E_SUCCESS}
-}
-
-# --- Logging and Output ---
-
-log() {
-    local level="$1"
-    shift
-    local message="$*"
-    
-    # Validate log level
-    if [[ -z "${LOG_LEVELS[$level]}" ]]; then
-        level="ERROR"
-        message="Invalid log level specified for message: $*"
-    fi
-    
-    # Format timestamp
-    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    
-    # Write to log file
-    printf "[%s] [%s] %s\n" "${timestamp}" "${level}" "${message}" \
-        >> "${CURRENT_LOG_FILE}"
-    
-    # Write to console with proper formatting
-    case "${level}" in
-        "ERROR")
-            printf "${RED}[%s] %s${NC}\n" "${level}" "${message}" >&2
-            ;;
-        "WARN")
-            printf "${YELLOW}[%s] %s${NC}\n" "${level}" "${message}" >&2
-            ;;
-        "INFO")
-            printf "${GREEN}[%s] %s${NC}\n" "${level}" "${message}"
-            ;;
-        "DEBUG")
-            [[ -n "${DEBUG}" ]] && \
-                printf "${BLUE}[%s] %s${NC}\n" "${level}" "${message}"
-            ;;
-    esac
-}
-
-# --- Cross-Component Communication ---
-
-send_component_message() {
-    local component="$1"
-    local message_type="$2"
-    local payload="$3"
-    local message_file
-    
-    # Create timestamped message file
-    message_file=$(mktemp "${TEMP_DIR}/msg_${component}_XXXXXX.json")
-    
-    # Write message content
-    cat > "${message_file}" << EOF
-{
-    "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
-    "component": "${component}",
-    "type": "${message_type}",
-    "payload": ${payload}
-}
-EOF
-    
-    chmod 0640 "${message_file}"
-    
-    return ${E_SUCCESS}
-}
-
-receive_component_messages() {
-    local component="$1"
-    local message_pattern="${TEMP_DIR}/msg_${component}_*.json"
-    
-    # Process all messages for this component
-    local messages=()
-    while IFS= read -r -d '' message_file; do
-        messages+=("$(cat "${message_file}")")
-        rm -f "${message_file}"
-    done < <(find "${TEMP_DIR}" -name "msg_${component}_*.json" -print0)
-    
-    # Return messages as JSON array
-    printf '%s\n' "${messages[@]}" | jq -s '.'
 }
 
 # --- Main Entry Point ---

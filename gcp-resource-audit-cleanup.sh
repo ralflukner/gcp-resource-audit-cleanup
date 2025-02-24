@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/homebrew/bin/bash
 #
 # Enhanced GCP Resource Collection and Deletion Script with Temporal Information
 # Version: 3.2.2

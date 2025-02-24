@@ -10,6 +10,9 @@ snippet-menu-safety-implementation.sh
 make-file-bundle-sh-md.sh
 compare-text-files.sh
 *.backup
+gcp-utils-sh-errors.txt
+test_output.txt
+test_output/
 
 # Editor Files
 *.swp

@@ -1,66 +1,55 @@
 # GCP Resource Audit and Cleanup
 
-The GCP Resource Audit and Cleanup tool is a sophisticated Bash script designed to help system administrators and cloud engineers maintain their Google Cloud Platform environments. This tool systematically analyzes resource usage patterns, identifies optimization opportunities, and safely manages resource lifecycle, all while maintaining strict safety controls and comprehensive audit trails.
+The GCP Resource Audit and Cleanup tool provides a sophisticated, safety-focused approach to managing Google Cloud Platform environments. Version 3.2.7 introduces significant enhancements to system reliability, error handling, and cross-platform compatibility, while maintaining our commitment to secure and predictable resource management.
 
 ## Key Features
 
-The script provides a robust set of capabilities for GCP resource management:
+The system provides comprehensive capabilities for GCP resource management:
 
 Resource Analysis:
-- Compute Engine instance utilization patterns and optimization opportunities
-- Storage bucket access patterns and lifecycle management
-- Unattached persistent disk identification
-- Snapshot retention analysis and cleanup recommendations
-- Network resource utilization assessment
+Our enhanced analysis system now provides more reliable detection of resource utilization patterns, optimization opportunities, and potential security concerns. The system examines compute instances, storage resources, and network configurations through multiple validation layers to ensure accurate results.
 
 Safety and Control:
-- Interactive and non-interactive operation modes
-- Comprehensive dependency checking before any resource modification
-- Rate-limited API calls to prevent quota exhaustion
-- Detailed logging and audit trails
-- Resource locking to prevent concurrent modifications
+Version 3.2.7 introduces sophisticated error handling and state management, providing enhanced protection against concurrent modifications and improved recovery from unexpected conditions. Our new permission model implements precise access controls following the principle of least privilege.
 
-Performance Optimization:
-- Efficient batch processing of resource inventories
-- Intelligent retry mechanisms with exponential backoff
-- Parallel processing capabilities where appropriate
-- Memory-efficient handling of large resource sets
+Performance and Reliability:
+The improved core utilities provide robust error recovery, efficient batch processing, and intelligent retry mechanisms. Our enhanced locking system prevents resource conflicts while maintaining system responsiveness.
 
 ## Version and Compatibility
 
-Current Version: 3.2.4
-Release Date: January 2025
+Current Version: 3.2.7
+Release Date: February 2025
 
-The script has been thoroughly tested in the following environments:
+Environment Compatibility:
 - Linux: Ubuntu 22.04+, Debian 11+, Red Hat Enterprise Linux 8+
-- macOS: Ventura (13.0) and later with Bash 4.0+ installed
+- macOS: Ventura (13.0) and later with Bash 4.0+
 - Windows: Windows Subsystem for Linux 2 (WSL2) with Ubuntu 22.04
 
 ## Prerequisites
 
-Before using this tool, ensure your environment meets these requirements:
+System Requirements:
 
 1. Bash Environment:
-   - Bash version 4.0 or higher is required
+   - Bash version 4.0 or higher (required)
    - For macOS users: Install updated Bash via Homebrew:
      ```bash
      brew install bash
      ```
 
 2. Google Cloud SDK:
-   - Minimum version: 350.0.0
+   - Minimum version: 458.0.1
    - Installation guide: https://cloud.google.com/sdk/docs/install
-   - Must be properly authenticated with sufficient permissions
+   - Must be authenticated with appropriate permissions
 
 3. Required System Utilities:
-   - jq (JSON processor)
-   - gcloud (Google Cloud SDK)
-   - awk
-   - curl
-   - mktemp
+   - jq: JSON processor
+   - gcloud: Google Cloud SDK
+   - awk: Text processing
+   - curl: Data transfer
+   - mktemp: Temporary file management
 
 4. IAM Permissions:
-   For read-only analysis:
+   For analysis operations:
    - roles/compute.viewer
    - roles/storage.viewer
    - roles/monitoring.viewer
@@ -90,7 +79,7 @@ chmod +x gcp-resource-audit-cleanup.sh
 
 ## Usage Guide
 
-The script supports various operation modes and configuration options:
+The script supports various operation modes with enhanced safety controls:
 
 Basic Usage:
 ```bash
@@ -134,49 +123,50 @@ Common Usage Patterns:
   --output-format json
 ```
 
+## Safety Features
+
+Version 3.2.7 introduces enhanced safety mechanisms:
+
+1. Resource Locking:
+   - Distributed lock management
+   - Automatic deadlock prevention
+   - Lock inheritance tracking
+   - Stale lock cleanup
+
+2. State Management:
+   - Pre-update state validation
+   - Automatic backup creation
+   - Atomic write operations
+   - Corruption detection and recovery
+
+3. Error Handling:
+   - Comprehensive error codes
+   - Stack trace generation
+   - State capture for debugging
+   - Specialized recovery procedures
+
 ## Output and Reports
 
-The script generates several types of output:
+The system generates detailed reports including:
 
 1. Resource Inventory:
-   - Comprehensive listing of all GCP resources
-   - Usage patterns and statistics
-   - Dependency mappings
+   - Comprehensive resource listings
+   - Usage pattern analysis
+   - Dependency mapping
 
 2. Analysis Reports:
    - Resource utilization metrics
-   - Cost optimization opportunities
-   - Security recommendations
+   - Cost optimization recommendations
+   - Security assessment findings
 
 3. Audit Logs:
-   - Detailed operation logs
-   - Error reports and warnings
-   - Action audit trails
-
-All outputs are stored in the specified output directory with timestamps and proper categorization.
-
-## Safety Features
-
-The script implements multiple safety mechanisms:
-
-1. Resource Locking:
-   - Prevents concurrent modifications
-   - Ensures atomic operations
-   - Automatic lock cleanup
-
-2. Dependency Checking:
-   - Full dependency graph analysis
-   - Cascade impact assessment
-   - Automatic abort for unsafe operations
-
-3. Rate Limiting:
-   - Token bucket algorithm
-   - Configurable rate limits
-   - Automatic backoff on API throttling
+   - Detailed operation records
+   - Error reports and resolutions
+   - Complete action audit trails
 
 ## Troubleshooting
 
-Common issues and their solutions:
+Common issues and solutions:
 
 1. Authentication Errors:
    - Run `gcloud auth login`
@@ -184,9 +174,9 @@ Common issues and their solutions:
    - Check credential expiration
 
 2. Rate Limiting:
-   - Adjust API_CALLS_PER_MINUTE in script
    - Monitor quota usage
    - Implement request batching
+   - Adjust API_CALLS_PER_MINUTE
 
 3. Permission Issues:
    - Verify IAM roles
@@ -195,7 +185,7 @@ Common issues and their solutions:
 
 ## Contributing
 
-We welcome contributions to improve this tool:
+We welcome contributions that enhance system reliability and safety:
 
 1. Fork the repository
 2. Create a feature branch
@@ -211,10 +201,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Security Considerations
 
-While this script implements numerous safety checks, users should:
-- Always test in non-production environments first
+The system implements numerous safety checks. Users should:
+- Test in non-production environments first
 - Maintain proper backup procedures
-- Review all recommended actions before execution
+- Review all recommended actions
 - Monitor audit logs for unexpected behavior
 
 ## Support and Contact

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/homebrew/bin/bash
 #
 # GCP Resource Audit and Cleanup Menu System
 # Version: 1.1.0
