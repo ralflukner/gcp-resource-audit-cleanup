@@ -4,7 +4,8 @@
 # Author: Ralf B Lukner MD PhD
 
 # Import core utilities
-source "./gcp-utils.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/gcp-utils.sh"
 
 # --- Test Suite Configuration ---
 readonly TEST_VERSION="3.2.7"
