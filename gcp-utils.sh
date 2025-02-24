@@ -32,7 +32,7 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # System directories - created with proper permissions
 readonly CONFIG_DIR="${HOME}/.gcp-resource-mgmt"
 readonly LOG_DIR="${CONFIG_DIR}/logs"
-readonly TEMP_DIR="${CONFIG_DIR}/temp"
+TEMP_DIR="${CONFIG_DIR}/temp"
 readonly LOCK_DIR="${CONFIG_DIR}/locks"
 readonly STATE_DIR="${CONFIG_DIR}/state"
 
